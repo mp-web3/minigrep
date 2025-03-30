@@ -18,17 +18,26 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let contents =
-        fs::read_to_string(config.file_path).expect("Should have been able to read the file");
+    let contents = fs::read_to_string(config.file_path.clone())?;
+    let file_path: &str = config.file_path.as_str();
+    let query: &str = config.query.as_str();
 
-    println!("With text:\n{contents}");
+    let results = search(&config.query, &contents);
+
+    if results.is_empty() {
+        println!("No line found in file '{file_path}' for query '{query}'.");
+    } else {
+        for line in results {
+            println!("{line}");
+        }
+    }
 
     Ok(())
 }
 
-// We’ll test-drive the implementation of the functionality that will actually do the searching for
+// We'll test-drive the implementation of the functionality that will actually do the searching for
 // the query string in the file contents and produce a list of lines that match the query.
-// We’ll add this functionality in a function called search.
+// We'll add this functionality in a function called search.
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
